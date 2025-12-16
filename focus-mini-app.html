@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Focus Mini App - Productivity timer with task tracking and breathing exercises">
+  <title>Focus Mini App</title>
+  <style>
+    /* ============================================
+       Focus Mini App Stylesheet
+       Modern dark theme productivity app
+       ============================================ */
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      background: #0f172a;
+      color: #e5e7eb;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 960px;
+      background: #020617;
+      border-radius: 18px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+      border-bottom: 1px solid #1f2937;
+      padding-bottom: 8px;
+    }
+
+    header h1 {
+      font-size: 1.4rem;
+      font-weight: 600;
+    }
+
+    header span {
+      font-size: 0.85rem;
+      color: #9ca3af;
+    }
+
+    /* Distraction banner - shown when user is idle or switches tabs */
+    .distraction-banner {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      background: rgba(31, 41, 55, 0.95);
+      border: 1px solid #4b5563;
+      font-size: 0.85rem;
+    }
+
+    .distraction-banner span {
+      color: #e5e7eb;
+    }
+
+    .distraction-actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .main {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .panel {
+      background: #020617;
+      border-radius: 14px;
+      border: 1px solid #1f2937;
+      padding: 16px;
+      flex: 1 1 260px;
+      min-width: 0;
+    }
+
+    .panel h2 {
+      font-size: 1.1rem;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    .panel p.subtitle {
+      font-size: 0.85rem;
+      color: #9ca3af;
+      margin-bottom: 12px;
+    }
+
+    /* Timer display styling */
+    .timer-display {
+      font-size: 3rem;
+      font-weight: 600;
+      text-align: center;
+      letter-spacing: 0.1em;
+      margin: 12px 0;
+    }
+
+    .mode-label {
+      text-align: center;
+      font-size: 0.9rem;
+      color: #9ca3af;
+      margin-bottom: 12px;
+    }
+
+    .timer-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      background: #1d4ed8;
+      color: white;
+      transition: background 0.15s ease, transform 0.05s ease;
+    }
+
+    .btn:focus-visible {
+      outline: 2px solid #38bdf8;
+      outline-offset: 2px;
+    }
+
+    .btn.secondary {
+      background: #111827;
+      color: #e5e7eb;
+      border: 1px solid #374151;
+    }
+
+    .btn.outline {
+      background: transparent;
+      border: 1px solid #374151;
+      color: #e5e7eb;
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .current-task {
+      font-size: 0.9rem;
+      text-align: center;
+      margin-top: 4px;
+      color: #9ca3af;
+    }
+
+    .current-task strong {
+      color: #e5e7eb;
+    }
+
+    /* Focus sessions counter */
+    .focus-count {
+      margin-top: 4px;
+      font-size: 0.9rem;
+      text-align: center;
+      color: #9ca3af;
+    }
+
+    .focus-count strong {
+      color: #e5e7eb;
+    }
+
+    /* Break mini-game breathing exercise */
+    .break-section {
+      margin-top: 12px;
+      border-top: 1px dashed #1f2937;
+      padding-top: 10px;
+    }
+
+    .break-title {
+      font-size: 0.95rem;
+      margin-bottom: 6px;
+    }
+
+    .breathing-circle {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      margin: 10px auto;
+      border: 2px solid #4b5563;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      text-align: center;
+      padding: 12px;
+      transition: transform 1s ease;
+    }
+
+    .breathing-circle.inhale {
+      transform: scale(1.1);
+      border-color: #22c55e;
+    }
+
+    .breathing-circle.hold {
+      transform: scale(1.05);
+      border-color: #eab308;
+    }
+
+    .breathing-circle.exhale {
+      transform: scale(0.95);
+      border-color: #38bdf8;
+    }
+
+    .break-info {
+      font-size: 0.8rem;
+      color: #9ca3af;
+      text-align: center;
+      margin-top: 4px;
+    }
+
+    /* Task list styling */
+    .task-input-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .task-input-row input {
+      flex: 1;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid #374151;
+      background: #020617;
+      color: #e5e7eb;
+      font-size: 0.9rem;
+    }
+
+    .task-input-row input:focus {
+      outline: none;
+      border-color: #3b82f6;
+    }
+
+    .task-input-row input:focus-visible {
+      outline: 2px solid #3b82f6;
+      outline-offset: 2px;
+    }
+
+    ul.task-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 260px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .task-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      border-radius: 999px;
+      background: #020617;
+      border: 1px solid #1f2937;
+      font-size: 0.9rem;
+    }
+
+    .task-item input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+
+    .task-label {
+      flex: 1;
+      word-break: break-word;
+    }
+
+    .task-item.completed .task-label {
+      text-decoration: line-through;
+      color: #6b7280;
+    }
+
+    .task-delete {
+      border: none;
+      background: transparent;
+      color: #6b7280;
+      font-size: 0.9rem;
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 999px;
+      aria-label: "Delete task";
+    }
+
+    .task-delete:hover {
+      background: #111827;
+      color: #f97316;
+    }
+
+    .task-delete:focus-visible {
+      outline: 2px solid #f97316;
+      outline-offset: 2px;
+    }
+
+    .hint {
+      font-size: 0.75rem;
+      color: #6b7280;
+      margin-top: 4px;
+    }
+
+    /* Responsive design for small screens */
+    @media (max-width: 640px) {
+      .timer-display {
+        font-size: 2.4rem;
+      }
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .distraction-banner {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app" role="application" aria-label="Focus Mini App - Productivity Timer">
+    <header role="banner">
+      <h1>Focus Mini App</h1>
+      <span>Simple timer + tasks + breathing break</span>
+    </header>
+
+    <!-- Distraction detection banner -->
+    <div 
+      class="distraction-banner" 
+      id="distraction-banner"
+      role="alert"
+      aria-live="assertive"
+      aria-hidden="true"
+    >
+      <span id="distraction-message">
+        Looks like your attention drifted. Want a quick reset?
+      </span>
+      <div class="distraction-actions" role="group" aria-label="Distraction response actions">
+        <button 
+          class="btn secondary" 
+          id="distraction-breath-btn"
+          aria-label="Start 60 second breathing exercise"
+        >
+          Start 60s Breathing
+        </button>
+        <button 
+          class="btn outline" 
+          id="distraction-dismiss-btn"
+          aria-label="Dismiss and return to focus"
+        >
+          Back to Focus
+        </button>
+      </div>
+    </div>
+
+    <div class="main">
+      <!-- Timer & mini game panel -->
+      <section class="panel" id="timer-panel" aria-labelledby="timer-heading">
+        <h2 id="timer-heading">Focus Timer</h2>
+        <p class="subtitle">Alternate focused work and tiny breathing breaks.</p>
+
+        <!-- Focus session counter -->
+        <div class="focus-count" aria-live="polite">
+          Focus sessions completed: <strong id="focus-count-number" aria-label="Focus sessions count">0</strong>
+        </div>
+
+        <div class="mode-label" id="mode-label" aria-live="polite">Mode: Focus</div>
+        <div 
+          class="timer-display" 
+          id="timer-display"
+          role="timer"
+          aria-live="polite"
+          aria-atomic="true"
+          aria-label="Timer display"
+        >
+          25:00
+        </div>
+
+        <div class="timer-buttons" role="group" aria-label="Timer controls">
+          <button class="btn" id="start-btn" aria-label="Start timer">Start</button>
+          <button class="btn secondary" id="pause-btn" aria-label="Pause timer">Pause</button>
+          <button class="btn outline" id="reset-btn" aria-label="Reset timer">Reset</button>
+        </div>
+
+        <div class="timer-buttons" role="group" aria-label="Mode selection">
+          <button class="btn secondary" id="focus-mode-btn" aria-label="Switch to focus mode">Focus Mode</button>
+          <button class="btn secondary" id="break-mode-btn" aria-label="Switch to break mode">Break Mode</button>
+        </div>
+
+        <div class="current-task" id="current-task-label" aria-live="polite">
+          Current task: <strong>None selected</strong>
+        </div>
+
+        <div class="break-section" aria-labelledby="break-title">
+          <div class="break-title" id="break-title">Break mini-game: guided breathing</div>
+          <p class="subtitle">
+            When you're in <strong>Break Mode</strong>, follow the circle for a 60-second reset.
+          </p>
+          <div 
+            class="breathing-circle" 
+            id="breathing-circle"
+            role="img"
+            aria-label="Breathing exercise indicator"
+          >
+            Switch to Break Mode to start
+          </div>
+          <div class="break-info" id="break-info" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <!-- Tasks panel -->
+      <section class="panel" id="tasks-panel" aria-labelledby="tasks-heading">
+        <h2 id="tasks-heading">Tasks</h2>
+        <p class="subtitle">Create a short list of things to focus on.</p>
+
+        <div class="task-input-row">
+          <input
+            type="text"
+            id="task-input"
+            placeholder="Type a task and press Enter or Add..."
+            aria-label="Task input field"
+            aria-describedby="task-hint"
+          />
+          <button 
+            class="btn secondary" 
+            id="add-task-btn"
+            aria-label="Add new task"
+            type="button"
+          >
+            Add
+          </button>
+        </div>
+        <p class="hint" id="task-hint">Tip: click a task to mark it done. Click the dot to remove it.</p>
+
+        <ul class="task-list" id="task-list" role="list" aria-label="Task list"></ul>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    /* ============================================
+       Focus Mini App - Main Application
+       Productivity timer with task tracking and breathing exercises
+       ============================================ */
+
+    // ============================================
+    // CONSTANTS
+    // ============================================
+    const FOCUS_DURATION_MINUTES = 25;
+    const FOCUS_DURATION_SECONDS = FOCUS_DURATION_MINUTES * 60;
+    const BREAK_DURATION_SECONDS = 60;
+    const IDLE_THRESHOLD_SECONDS = 60;
+    const IDLE_THRESHOLD_MS = IDLE_THRESHOLD_SECONDS * 1000;
+    const IDLE_CHECK_INTERVAL_MS = 5000;
+    const BREATHING_CYCLE_LENGTH = 12; // seconds
+    const BREATHING_INHALE_DURATION = 4; // seconds
+    const BREATHING_HOLD_DURATION = 7; // seconds
+    const STORAGE_KEY_FOCUS_COUNT = "focusCount";
+    const TIMER_INTERVAL_MS = 1000;
+
+    // ============================================
+    // ERROR HANDLING UTILITIES
+    // ============================================
+    
+    /**
+     * Safely gets an element by ID with error handling
+     * @param {string} id - Element ID
+     * @param {string} elementName - Name for error messages
+     * @returns {HTMLElement|null} - Element or null if not found
+     */
+    function getElementSafely(id, elementName = id) {
+      try {
+        const element = document.getElementById(id);
+        if (!element) {
+          console.error(`Element not found: ${elementName} (ID: ${id})`);
+        }
+        return element;
+      } catch (error) {
+        console.error(`Error getting element ${elementName}:`, error);
+        return null;
+      }
+    }
+
+    /**
+     * Safely accesses localStorage with error handling
+     * @param {string} key - Storage key
+     * @param {*} defaultValue - Default value if retrieval fails
+     * @returns {*} - Stored value or default
+     */
+    function getLocalStorageSafely(key, defaultValue = null) {
+      try {
+        const value = localStorage.getItem(key);
+        return value !== null ? value : defaultValue;
+      } catch (error) {
+        console.error(`Error reading from localStorage (key: ${key}):`, error);
+        return defaultValue;
+      }
+    }
+
+    /**
+     * Safely sets localStorage with error handling
+     * @param {string} key - Storage key
+     * @param {*} value - Value to store
+     * @returns {boolean} - True if successful
+     */
+    function setLocalStorageSafely(key, value) {
+      try {
+        localStorage.setItem(key, String(value));
+        return true;
+      } catch (error) {
+        console.error(`Error writing to localStorage (key: ${key}):`, error);
+        return false;
+      }
+    }
+
+    // ============================================
+    // DOM ELEMENT REFERENCES
+    // ============================================
+    const modeLabel = getElementSafely("mode-label", "Mode Label");
+    const timerDisplay = getElementSafely("timer-display", "Timer Display");
+    const startBtn = getElementSafely("start-btn", "Start Button");
+    const pauseBtn = getElementSafely("pause-btn", "Pause Button");
+    const resetBtn = getElementSafely("reset-btn", "Reset Button");
+    const focusModeBtn = getElementSafely("focus-mode-btn", "Focus Mode Button");
+    const breakModeBtn = getElementSafely("break-mode-btn", "Break Mode Button");
+    const breathingCircle = getElementSafely("breathing-circle", "Breathing Circle");
+    const breakInfo = getElementSafely("break-info", "Break Info");
+    const currentTaskLabel = getElementSafely("current-task-label", "Current Task Label");
+    const focusCountNumber = getElementSafely("focus-count-number", "Focus Count Number");
+    const taskInput = getElementSafely("task-input", "Task Input");
+    const addTaskBtn = getElementSafely("add-task-btn", "Add Task Button");
+    const taskList = getElementSafely("task-list", "Task List");
+    const distractionBanner = getElementSafely("distraction-banner", "Distraction Banner");
+    const distractionMessage = getElementSafely("distraction-message", "Distraction Message");
+    const distractionBreathBtn = getElementSafely("distraction-breath-btn", "Distraction Breath Button");
+    const distractionDismissBtn = getElementSafely("distraction-dismiss-btn", "Distraction Dismiss Button");
+
+    // Validate critical elements exist
+    if (!modeLabel || !timerDisplay || !startBtn || !pauseBtn || !resetBtn) {
+      console.error("Critical DOM elements missing. App may not function correctly.");
+    }
+
+    // ============================================
+    // STATE MANAGEMENT
+    // ============================================
+    let focusCount = 0;
+    let mode = "focus"; // "focus" or "break"
+    let remainingSeconds = FOCUS_DURATION_SECONDS;
+    let timerId = null;
+    let isRunning = false;
+    let breathingElapsed = 0;
+    let lastActivityTime = Date.now();
+    let distractionActive = false;
+
+    // ============================================
+    // INITIALIZATION
+    // ============================================
+    
+    /**
+     * Initializes the app state from localStorage
+     */
+    function initializeApp() {
+      try {
+        // Load focus count from localStorage
+        const storedFocusCount = getLocalStorageSafely(STORAGE_KEY_FOCUS_COUNT, "0");
+        const parsed = parseInt(storedFocusCount, 10);
+        if (!isNaN(parsed) && parsed >= 0) {
+          focusCount = parsed;
+          if (focusCountNumber) {
+            focusCountNumber.textContent = focusCount;
+          }
+        }
+
+        // Initialize display
+        updateModeLabel();
+        updateTimerDisplay();
+        setCurrentTaskLabel();
+      } catch (error) {
+        console.error("Error initializing app:", error);
+      }
+    }
+
+    // ============================================
+    // TIMER FUNCTIONS
+    // ============================================
+
+    /**
+     * Formats seconds into MM:SS format
+     * @param {number} seconds - Total seconds
+     * @returns {string} - Formatted time string
+     */
+    function formatTime(seconds) {
+      try {
+        const m = Math.floor(Math.max(0, seconds) / 60);
+        const s = Math.max(0, seconds) % 60;
+        const mm = m.toString().padStart(2, "0");
+        const ss = s.toString().padStart(2, "0");
+        return `${mm}:${ss}`;
+      } catch (error) {
+        console.error("Error formatting time:", error);
+        return "00:00";
+      }
+    }
+
+    /**
+     * Updates the timer display
+     */
+    function updateTimerDisplay() {
+      try {
+        if (timerDisplay) {
+          timerDisplay.textContent = formatTime(remainingSeconds);
+        }
+      } catch (error) {
+        console.error("Error updating timer display:", error);
+      }
+    }
+
+    /**
+     * Updates the mode label display
+     */
+    function updateModeLabel() {
+      try {
+        if (modeLabel) {
+          modeLabel.textContent = mode === "focus" ? "Mode: Focus" : "Mode: Break (mini-game)";
+        }
+        
+        if (mode === "focus") {
+          if (breathingCircle) {
+            breathingCircle.textContent = "Switch to Break Mode to start";
+            breathingCircle.className = "breathing-circle";
+          }
+          if (breakInfo) {
+            breakInfo.textContent = "";
+          }
+        }
+      } catch (error) {
+        console.error("Error updating mode label:", error);
+      }
+    }
+
+    /**
+     * Switches between focus and break modes
+     * @param {string} newMode - "focus" or "break"
+     */
+    function switchMode(newMode) {
+      try {
+        if (newMode !== "focus" && newMode !== "break") {
+          console.warn(`Invalid mode: ${newMode}. Defaulting to focus.`);
+          newMode = "focus";
+        }
+
+        mode = newMode;
+        
+        if (mode === "focus") {
+          remainingSeconds = FOCUS_DURATION_SECONDS;
+          stopBreathing();
+        } else {
+          remainingSeconds = BREAK_DURATION_SECONDS;
+          startBreathing();
+        }
+        
+        updateModeLabel();
+        updateTimerDisplay();
+      } catch (error) {
+        console.error("Error switching mode:", error);
+      }
+    }
+
+    /**
+     * Starts the timer
+     */
+    function startTimer() {
+      try {
+        if (isRunning) return;
+        
+        isRunning = true;
+        
+        if (timerId) {
+          clearInterval(timerId);
+        }
+        
+        timerId = setInterval(() => {
+          try {
+            if (remainingSeconds > 0) {
+              remainingSeconds -= 1;
+              updateTimerDisplay();
+              
+              if (mode === "break") {
+                updateBreathingFromTimer();
+              }
+            } else {
+              handleTimerEnd();
+            }
+          } catch (error) {
+            console.error("Error in timer interval:", error);
+            pauseTimer();
+          }
+        }, TIMER_INTERVAL_MS);
+      } catch (error) {
+        console.error("Error starting timer:", error);
+        isRunning = false;
+      }
+    }
+
+    /**
+     * Pauses the timer
+     */
+    function pauseTimer() {
+      try {
+        if (!isRunning) return;
+        
+        if (timerId) {
+          clearInterval(timerId);
+          timerId = null;
+        }
+        
+        isRunning = false;
+      } catch (error) {
+        console.error("Error pausing timer:", error);
+      }
+    }
+
+    /**
+     * Resets the timer to initial duration
+     */
+    function resetTimer() {
+      try {
+        pauseTimer();
+        
+        if (mode === "focus") {
+          remainingSeconds = FOCUS_DURATION_SECONDS;
+        } else {
+          remainingSeconds = BREAK_DURATION_SECONDS;
+        }
+        
+        updateTimerDisplay();
+      } catch (error) {
+        console.error("Error resetting timer:", error);
+      }
+    }
+
+    /**
+     * Handles timer completion
+     */
+    function handleTimerEnd() {
+      try {
+        pauseTimer();
+
+        if (mode === "focus") {
+          // Show completion message (using alert for simplicity, could be improved)
+          if (typeof alert !== "undefined") {
+            alert("Nice! Focus session complete. Try a 60-second breathing break.");
+          }
+
+          // Increase focus session count and save
+          focusCount += 1;
+          if (focusCountNumber) {
+            focusCountNumber.textContent = focusCount;
+          }
+          setLocalStorageSafely(STORAGE_KEY_FOCUS_COUNT, focusCount);
+
+          switchMode("break");
+        } else {
+          if (typeof alert !== "undefined") {
+            alert("Break finished! Ready to get back to focus?");
+          }
+          switchMode("focus");
+        }
+      } catch (error) {
+        console.error("Error handling timer end:", error);
+      }
+    }
+
+    // ============================================
+    // BREATHING EXERCISE FUNCTIONS
+    // ============================================
+
+    /**
+     * Starts the breathing exercise
+     */
+    function startBreathing() {
+      try {
+        breathingElapsed = 0;
+        if (breathingCircle) {
+          breathingCircle.className = "breathing-circle inhale";
+          breathingCircle.textContent = "Inhale...";
+        }
+        if (breakInfo) {
+          breakInfo.textContent = "Follow inhale / hold / exhale until the timer ends.";
+        }
+      } catch (error) {
+        console.error("Error starting breathing exercise:", error);
+      }
+    }
+
+    /**
+     * Stops the breathing exercise
+     */
+    function stopBreathing() {
+      try {
+        breathingElapsed = 0;
+        if (breathingCircle) {
+          breathingCircle.className = "breathing-circle";
+          breathingCircle.textContent = "Switch to Break Mode to start";
+        }
+        if (breakInfo) {
+          breakInfo.textContent = "";
+        }
+      } catch (error) {
+        console.error("Error stopping breathing exercise:", error);
+      }
+    }
+
+    /**
+     * Updates breathing animation based on timer
+     */
+    function updateBreathingFromTimer() {
+      try {
+        const elapsed = BREAK_DURATION_SECONDS - remainingSeconds;
+        breathingElapsed = elapsed;
+
+        const cycleLength = BREATHING_CYCLE_LENGTH;
+        const t = breathingElapsed % cycleLength;
+
+        if (!breathingCircle || !breakInfo) return;
+
+        if (t < BREATHING_INHALE_DURATION) {
+          breathingCircle.className = "breathing-circle inhale";
+          breathingCircle.textContent = "Inhale slowly...";
+        } else if (t < BREATHING_HOLD_DURATION) {
+          breathingCircle.className = "breathing-circle hold";
+          breathingCircle.textContent = "Hold...";
+        } else {
+          breathingCircle.className = "breathing-circle exhale";
+          breathingCircle.textContent = "Exhale gently...";
+        }
+
+        breakInfo.textContent = `Break time left: ${remainingSeconds}s`;
+      } catch (error) {
+        console.error("Error updating breathing animation:", error);
+      }
+    }
+
+    // ============================================
+    // TASK MANAGEMENT FUNCTIONS
+    // ============================================
+
+    /**
+     * Updates the current task label based on active tasks
+     */
+    function setCurrentTaskLabel() {
+      try {
+        if (!currentTaskLabel || !taskList) return;
+
+        const firstActiveTask = taskList.querySelector(".task-item:not(.completed) .task-label");
+        if (firstActiveTask) {
+          currentTaskLabel.innerHTML = 'Current task: <strong>' + firstActiveTask.textContent + "</strong>";
+        } else {
+          currentTaskLabel.innerHTML = "Current task: <strong>None selected</strong>";
+        }
+      } catch (error) {
+        console.error("Error setting current task label:", error);
+      }
+    }
+
+    /**
+     * Adds a task from the input field
+     */
+    function addTaskFromInput() {
+      try {
+        if (!taskInput || !taskList) return;
+
+        const text = taskInput.value.trim();
+        if (!text) return;
+
+        const li = document.createElement("li");
+        li.className = "task-item";
+        li.setAttribute("role", "listitem");
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.setAttribute("aria-label", `Mark task "${text}" as complete`);
+
+        const span = document.createElement("span");
+        span.className = "task-label";
+        span.textContent = text;
+
+        const delBtn = document.createElement("button");
+        delBtn.className = "task-delete";
+        delBtn.textContent = "•";
+        delBtn.setAttribute("aria-label", `Delete task "${text}"`);
+        delBtn.type = "button";
+
+        checkbox.addEventListener("change", () => {
+          try {
+            li.classList.toggle("completed", checkbox.checked);
+            setCurrentTaskLabel();
+          } catch (error) {
+            console.error("Error toggling task completion:", error);
+          }
+        });
+
+        delBtn.addEventListener("click", () => {
+          try {
+            li.remove();
+            setCurrentTaskLabel();
+          } catch (error) {
+            console.error("Error deleting task:", error);
+          }
+        });
+
+        li.appendChild(checkbox);
+        li.appendChild(span);
+        li.appendChild(delBtn);
+
+        taskList.appendChild(li);
+        taskInput.value = "";
+        setCurrentTaskLabel();
+      } catch (error) {
+        console.error("Error adding task:", error);
+      }
+    }
+
+    // ============================================
+    // DISTRACTION DETECTION FUNCTIONS
+    // ============================================
+
+    /**
+     * Registers user activity to reset idle timer
+     */
+    function registerActivity() {
+      try {
+        lastActivityTime = Date.now();
+        if (distractionActive) {
+          hideDistractionBanner();
+        }
+      } catch (error) {
+        console.error("Error registering activity:", error);
+      }
+    }
+
+    /**
+     * Shows the distraction banner
+     * @param {string} reason - Reason for showing banner ("idle" or "tab")
+     */
+    function showDistractionBanner(reason) {
+      try {
+        if (distractionActive) return;
+        if (mode !== "focus" || !isRunning) return;
+
+        distractionActive = true;
+        pauseTimer();
+
+        if (!distractionMessage || !distractionBanner) return;
+
+        if (reason === "idle") {
+          distractionMessage.textContent =
+            "You've been idle for a bit. Want a quick breathing reset or to jump back in?";
+        } else if (reason === "tab") {
+          distractionMessage.textContent =
+            "You switched away from your focus session. Take a breath or refocus?";
+        } else {
+          distractionMessage.textContent =
+            "Looks like your attention drifted. Want a quick reset?";
+        }
+
+        distractionBanner.style.display = "flex";
+        distractionBanner.setAttribute("aria-hidden", "false");
+      } catch (error) {
+        console.error("Error showing distraction banner:", error);
+      }
+    }
+
+    /**
+     * Hides the distraction banner
+     */
+    function hideDistractionBanner() {
+      try {
+        distractionActive = false;
+        if (distractionBanner) {
+          distractionBanner.style.display = "none";
+          distractionBanner.setAttribute("aria-hidden", "true");
+        }
+      } catch (error) {
+        console.error("Error hiding distraction banner:", error);
+      }
+    }
+
+    // ============================================
+    // EVENT LISTENERS SETUP
+    // ============================================
+
+    /**
+     * Sets up all event listeners
+     */
+    function setupEventListeners() {
+      try {
+        // Timer control buttons
+        if (startBtn) {
+          startBtn.addEventListener("click", () => {
+            registerActivity();
+            startTimer();
+          });
+        }
+
+        if (pauseBtn) {
+          pauseBtn.addEventListener("click", pauseTimer);
+        }
+
+        if (resetBtn) {
+          resetBtn.addEventListener("click", resetTimer);
+        }
+
+        if (focusModeBtn) {
+          focusModeBtn.addEventListener("click", () => {
+            pauseTimer();
+            switchMode("focus");
+          });
+        }
+
+        if (breakModeBtn) {
+          breakModeBtn.addEventListener("click", () => {
+            pauseTimer();
+            switchMode("break");
+          });
+        }
+
+        // Task management
+        if (addTaskBtn) {
+          addTaskBtn.addEventListener("click", addTaskFromInput);
+        }
+
+        if (taskInput) {
+          taskInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              addTaskFromInput();
+            }
+          });
+        }
+
+        // Distraction banner buttons
+        if (distractionBreathBtn) {
+          distractionBreathBtn.addEventListener("click", () => {
+            hideDistractionBanner();
+            switchMode("break");
+            startTimer();
+          });
+        }
+
+        if (distractionDismissBtn) {
+          distractionDismissBtn.addEventListener("click", () => {
+            hideDistractionBanner();
+            startTimer();
+          });
+        }
+
+        // User activity detection
+        const activityEvents = ["mousemove", "keydown", "click", "scroll", "touchstart"];
+        activityEvents.forEach((evt) => {
+          window.addEventListener(evt, registerActivity, { passive: true });
+        });
+
+        // Idle checker
+        setInterval(() => {
+          try {
+            if (mode === "focus" && isRunning && !distractionActive) {
+              const idleMs = Date.now() - lastActivityTime;
+              if (idleMs > IDLE_THRESHOLD_MS) {
+                showDistractionBanner("idle");
+              }
+            }
+          } catch (error) {
+            console.error("Error in idle checker:", error);
+          }
+        }, IDLE_CHECK_INTERVAL_MS);
+
+        // Tab/window visibility change detection
+        document.addEventListener("visibilitychange", () => {
+          try {
+            if (document.hidden) {
+              if (mode === "focus" && isRunning) {
+                showDistractionBanner("tab");
+              }
+            }
+          } catch (error) {
+            console.error("Error handling visibility change:", error);
+          }
+        });
+      } catch (error) {
+        console.error("Error setting up event listeners:", error);
+      }
+    }
+
+    // ============================================
+    // INITIALIZATION
+    // ============================================
+    
+    // Initialize app when DOM is ready
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", () => {
+        initializeApp();
+        setupEventListeners();
+      });
+    } else {
+      initializeApp();
+      setupEventListeners();
+    }
+  </script>
+</body>
+</html>
