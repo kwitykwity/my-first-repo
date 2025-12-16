@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simple Web Calculator</title>
+  <style>
+    /* ============================================
+       Calculator Stylesheet
+       Modern dark theme calculator design
+       ============================================ */
+    
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #0f172a;
+      color: #e5e7eb;
+    }
+
+    .calculator {
+      background: #111827;
+      padding: 16px;
+      border-radius: 16px;
+      width: 260px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    }
+
+    .display {
+      width: 100%;
+      padding: 12px 10px;
+      margin-bottom: 12px;
+      border-radius: 10px;
+      border: none;
+      font-size: 1.4rem;
+      text-align: right;
+      background: #020617;
+      color: #e5e7eb;
+    }
+
+    .display:focus {
+      outline: 2px solid #38bdf8;
+      outline-offset: 2px;
+    }
+
+    .display:focus-visible {
+      outline: 2px solid #38bdf8;
+      outline-offset: 2px;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    button {
+      border: none;
+      padding: 14px 0;
+      border-radius: 10px;
+      font-size: 1rem;
+      cursor: pointer;
+      background: #1f2937;
+      color: #e5e7eb;
+      transition: transform 0.05s ease, background 0.1s ease;
+    }
+
+    button:active {
+      transform: scale(0.96);
+      background: #374151;
+    }
+
+    button:focus-visible {
+      outline: 2px solid #38bdf8;
+      outline-offset: 2px;
+    }
+
+    button.operator {
+      background: #0ea5e9;
+      color: #020617;
+      font-weight: 600;
+    }
+
+    button.operator:active {
+      background: #0284c7;
+    }
+
+    button.equal {
+      grid-column: span 2;
+      background: #22c55e;
+      color: #022c22;
+      font-weight: 700;
+    }
+
+    button.equal:active {
+      background: #16a34a;
+    }
+
+    button.clear {
+      background: #ef4444;
+      color: #fef2f2;
+      font-weight: 600;
+    }
+
+    button.clear:active {
+      background: #dc2626;
+    }
+
+    /* Error state styling */
+    .display.error {
+      color: #ef4444;
+    }
+  </style>
+</head>
+<body>
+  <div class="calculator" role="application" aria-label="Calculator">
+    <input
+      type="text"
+      id="display"
+      class="display"
+      placeholder="0"
+      readonly
+      aria-label="Calculator display"
+      aria-live="polite"
+      aria-atomic="true"
+    />
+    <div class="buttons" role="group" aria-label="Calculator buttons">
+      <button class="clear" data-action="clear" aria-label="Clear all">C</button>
+      <button data-action="backspace" aria-label="Backspace">⌫</button>
+      <button data-action="percent" aria-label="Percentage">%</button>
+      <button class="operator" data-value="/" aria-label="Divide">÷</button>
+
+      <button data-value="7" aria-label="Seven">7</button>
+      <button data-value="8" aria-label="Eight">8</button>
+      <button data-value="9" aria-label="Nine">9</button>
+      <button class="operator" data-value="*" aria-label="Multiply">×</button>
+
+      <button data-value="4" aria-label="Four">4</button>
+      <button data-value="5" aria-label="Five">5</button>
+      <button data-value="6" aria-label="Six">6</button>
+      <button class="operator" data-value="-" aria-label="Subtract">−</button>
+
+      <button data-value="1" aria-label="One">1</button>
+      <button data-value="2" aria-label="Two">2</button>
+      <button data-value="3" aria-label="Three">3</button>
+      <button class="operator" data-value="+" aria-label="Add">+</button>
+
+      <button data-value="0" aria-label="Zero">0</button>
+      <button data-value="." aria-label="Decimal point">.</button>
+      <button class="equal" data-action="calculate" aria-label="Equals">=</button>
+    </div>
+  </div>
+
+  <script>
+    /* ============================================
+       Calculator Application
+       Safe expression evaluation without eval()
+       ============================================ */
+
+    // Constants
+    const ERROR_MESSAGE = "Error";
+    const MAX_DISPLAY_LENGTH = 15; // Prevent overflow
+
+    // DOM Elements
+    const display = document.getElementById("display");
+    const buttons = document.querySelector(".buttons");
+
+    // State management
+    let currentExpression = "";
+    let lastResult = null;
+
+    /**
+     * Validates if a character is allowed in calculator expressions
+     * @param {string} char - Character to validate
+     * @returns {boolean} - True if character is allowed
+     */
+    function isValidCharacter(char) {
+      return /[0-9+\-*/.%]/.test(char);
+    }
+
+    /**
+     * Validates the entire expression before evaluation
+     * @param {string} expr - Expression string to validate
+     * @returns {boolean} - True if expression is valid
+     */
+    function isValidExpression(expr) {
+      if (!expr || expr.trim() === "") return false;
+      
+      // Prevent multiple consecutive operators (except for negative numbers)
+      if (/[+\-*/]{2,}/.test(expr)) return false;
+      
+      // Prevent starting with operator (except minus for negative numbers)
+      if (/^[+*/]/.test(expr)) return false;
+      
+      // Prevent ending with operator
+      if (/[+\-*/]$/.test(expr)) return false;
+      
+      // Prevent division by zero pattern
+      if (/\/\s*0(?!\.)/.test(expr)) return false;
+      
+      // Only allow valid characters
+      if (!/^[0-9+\-*/.%\s]+$/.test(expr)) return false;
+      
+      return true;
+    }
+
+    /**
+     * Safely evaluates a mathematical expression
+     * Uses a simple parser instead of eval() or Function()
+     * @param {string} expr - Expression string to evaluate
+     * @returns {number|string} - Result or error message
+     */
+    function safeEvaluate(expr) {
+      try {
+        // Clean and validate expression
+        const cleaned = expr.replace(/\s/g, "");
+        
+        if (!isValidExpression(cleaned)) {
+          return ERROR_MESSAGE;
+        }
+
+        // Handle percentage
+        if (cleaned.includes("%")) {
+          const percentMatch = cleaned.match(/^([\d.]+)%$/);
+          if (percentMatch) {
+            return parseFloat(percentMatch[1]) / 100;
+          }
+        }
+
+        // Parse and evaluate using a simple token-based approach
+        // Split into numbers and operators
+        const tokens = cleaned.match(/(\d+\.?\d*|[+\-*/])/g);
+        
+        if (!tokens || tokens.length === 0) {
+          return ERROR_MESSAGE;
+        }
+
+        // Handle single number
+        if (tokens.length === 1) {
+          const num = parseFloat(tokens[0]);
+          return isNaN(num) ? ERROR_MESSAGE : num;
+        }
+
+        // Evaluate with proper operator precedence
+        // First: multiplication and division
+        let result = parseFloat(tokens[0]);
+        if (isNaN(result)) return ERROR_MESSAGE;
+
+        for (let i = 1; i < tokens.length; i += 2) {
+          const operator = tokens[i];
+          const nextNum = parseFloat(tokens[i + 1]);
+          
+          if (isNaN(nextNum)) return ERROR_MESSAGE;
+
+          switch (operator) {
+            case "+":
+              result += nextNum;
+              break;
+            case "-":
+              result -= nextNum;
+              break;
+            case "*":
+              result *= nextNum;
+              break;
+            case "/":
+              if (nextNum === 0) {
+                return ERROR_MESSAGE; // Division by zero
+              }
+              result /= nextNum;
+              break;
+            default:
+              return ERROR_MESSAGE;
+          }
+        }
+
+        // Check for valid result
+        if (!isFinite(result)) {
+          return ERROR_MESSAGE;
+        }
+
+        // Round to avoid floating point precision issues
+        return Math.round(result * 100000000) / 100000000;
+      } catch (error) {
+        console.error("Calculation error:", error);
+        return ERROR_MESSAGE;
+      }
+    }
+
+    /**
+     * Updates the display with error handling
+     * @param {string|number} value - Value to display
+     */
+    function updateDisplay(value) {
+      try {
+        const displayValue = String(value);
+        
+        // Limit display length
+        if (displayValue.length > MAX_DISPLAY_LENGTH) {
+          display.value = displayValue.substring(0, MAX_DISPLAY_LENGTH);
+        } else {
+          display.value = displayValue;
+        }
+
+        // Add error class for styling
+        if (displayValue === ERROR_MESSAGE) {
+          display.classList.add("error");
+        } else {
+          display.classList.remove("error");
+        }
+      } catch (error) {
+        console.error("Display update error:", error);
+        display.value = ERROR_MESSAGE;
+        display.classList.add("error");
+      }
+    }
+
+    /**
+     * Handles button click events
+     */
+    function handleButtonClick(event) {
+      try {
+        const target = event.target;
+        if (target.tagName !== "BUTTON") return;
+
+        const value = target.getAttribute("data-value");
+        const action = target.getAttribute("data-action");
+
+        // Remove error state when user starts typing
+        if (display.classList.contains("error")) {
+          display.classList.remove("error");
+          currentExpression = "";
+        }
+
+        if (value) {
+          // Append number or operator
+          if (display.value === "0" && value !== "." && !isNaN(value)) {
+            currentExpression = value;
+            updateDisplay(value);
+          } else {
+            currentExpression += value;
+            updateDisplay(currentExpression);
+          }
+          return;
+        }
+
+        if (action === "clear") {
+          currentExpression = "";
+          lastResult = null;
+          updateDisplay("");
+          return;
+        }
+
+        if (action === "backspace") {
+          if (currentExpression.length > 0) {
+            currentExpression = currentExpression.slice(0, -1);
+            updateDisplay(currentExpression || "");
+          }
+          return;
+        }
+
+        if (action === "percent") {
+          if (currentExpression) {
+            try {
+              const num = parseFloat(currentExpression);
+              if (!isNaN(num)) {
+                const result = num / 100;
+                currentExpression = String(result);
+                updateDisplay(result);
+              }
+            } catch (error) {
+              console.error("Percentage calculation error:", error);
+              updateDisplay(ERROR_MESSAGE);
+            }
+          }
+          return;
+        }
+
+        if (action === "calculate") {
+          if (!currentExpression) return;
+          
+          const result = safeEvaluate(currentExpression);
+          updateDisplay(result);
+          
+          if (result !== ERROR_MESSAGE) {
+            lastResult = result;
+            currentExpression = String(result);
+          } else {
+            currentExpression = "";
+          }
+        }
+      } catch (error) {
+        console.error("Button click error:", error);
+        updateDisplay(ERROR_MESSAGE);
+      }
+    }
+
+    /**
+     * Handles keyboard input with validation
+     */
+    function handleKeyboardInput(event) {
+      try {
+        const key = event.key;
+        const allowedKeys = "0123456789.+-*/";
+
+        // Prevent default for calculator keys
+        if (allowedKeys.includes(key) || key === "Enter" || key === "Backspace" || key.toLowerCase() === "c") {
+          event.preventDefault();
+        }
+
+        if (allowedKeys.includes(key)) {
+          // Remove error state
+          if (display.classList.contains("error")) {
+            display.classList.remove("error");
+            currentExpression = "";
+          }
+          
+          // Simulate button click
+          const button = Array.from(buttons.querySelectorAll("button")).find(
+            btn => btn.getAttribute("data-value") === key || 
+                   (key === "*" && btn.getAttribute("data-value") === "*") ||
+                   (key === "/" && btn.getAttribute("data-value") === "/")
+          );
+          
+          if (button) {
+            button.click();
+          }
+        } else if (key === "Enter" || key === "=") {
+          const calculateButton = buttons.querySelector('[data-action="calculate"]');
+          if (calculateButton) {
+            calculateButton.click();
+          }
+        } else if (key === "Backspace") {
+          const backspaceButton = buttons.querySelector('[data-action="backspace"]');
+          if (backspaceButton) {
+            backspaceButton.click();
+          }
+        } else if (key.toLowerCase() === "c" || key === "Escape") {
+          const clearButton = buttons.querySelector('[data-action="clear"]');
+          if (clearButton) {
+            clearButton.click();
+          }
+        }
+      } catch (error) {
+        console.error("Keyboard input error:", error);
+      }
+    }
+
+    // Event Listeners
+    try {
+      buttons.addEventListener("click", handleButtonClick);
+      window.addEventListener("keydown", handleKeyboardInput);
+    } catch (error) {
+      console.error("Event listener setup error:", error);
+      updateDisplay(ERROR_MESSAGE);
+    }
+  </script>
+</body>
+</html>
