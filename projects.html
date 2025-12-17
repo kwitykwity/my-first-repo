@@ -3,10 +3,43 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Projects</title>
+  <title>My Projects</title>
   <style>
-    body{font-family:system-ui, -apple-system, "Segoe UI", Roboto, Arial;margin:0;padding:2rem;background:#f7f7fb;color:#111}
-    .wrap{max-width:900px;margin:0 auto}
+    body{
+      font-family:system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+      margin:0;
+      padding:2rem;
+      color:#111;
+      
+      /* Background image */
+      background-image: url('images/neonfairy.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      
+      /* Optional: Add a semi-transparent overlay for better text readability */
+      position: relative;
+    }
+
+    /* Optional: Add overlay for better text contrast */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.3);
+      z-index: 0;
+    }
+
+    .wrap{
+      max-width:900px;
+      margin:0 auto;
+      position: relative;
+      z-index: 1;
+    }
     header{display:flex;align-items:center;justify-content:space-between}
     h1{margin:0}
     .list{margin-top:1rem;display:grid;gap:1rem}
