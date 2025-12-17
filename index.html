@@ -4,42 +4,128 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>About Me</title>
+
     <style>
-        body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial; margin: 0; padding: 2rem; display: flex; min-height: 100vh; align-items: center; justify-content: center; background:#f7f7fb; color:#111; }
-        .card { max-width: 720px; width:100%; background:white; padding:2rem; border-radius:10px; box-shadow:0 6px 24px rgba(16,24,40,0.08); }
-        h1 { margin:0 0 .25rem 0; font-size:1.6rem; }
-        p { margin:.25rem 0 1rem 0; color:#444; }
-        .links { display:flex; gap:.5rem; flex-wrap:wrap; }
-        .links a { padding:.5rem .8rem; border-radius:6px; text-decoration:none; background:#0b5fff; color:white; font-weight:600; }
-        .links a.secondary { background:#eef2ff; color:#0b5fff; border:1px solid #dbeafe; font-weight:600; }
-        footer { margin-top:1.25rem; font-size:.85rem; color:#666; }
+
+        body {
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+            margin: 0;
+            padding: 2rem;
+            display: flex;
+            min-height: 100vh;
+            align-items: center;
+            justify-content: center;
+
+            /* Lavender background */
+background: linear-gradient(135deg, #e0dcff, #f3f1ff);
+            color: #111;
+        }
+
+        .card {
+            max-width: 720px;
+            width: 100%;
+            background: white;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 6px 24px rgba(16,24,40,0.08);
+            text-align: center;
+        }
+
+        .profile-pic {
+            width: 140px;
+            height: 140px;
+            object-fit: cover;
+            border-radius: 50%;
+            margin-bottom: 1rem;
+            border: 4px solid #e6ddff;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            margin: 0 0 .5rem 0;
+            font-size: 1.7rem;
+        }
+
+        p {
+            margin: .5rem 0 1.5rem 0;
+            color: #444;
+            text-align: left;
+        }
+
+        .links {
+            display: flex;
+            gap: .5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .links a {
+            padding: .55rem .9rem;
+            border-radius: 6px;
+            text-decoration: none;
+		background: #5b4bff;
+            color: white;
+            font-weight: 600;
+        }
+
+        .links a.secondary {
+            background: #f2efff;
+            color: #6b4eff;
+            border: 1px solid #ddd6ff;
+        }
+
+        footer {
+            margin-top: 1.5rem;
+            font-size: .85rem;
+            color: #666;
+        }
     </style>
 </head>
+
 <body>
     <main class="card" role="main">
+
+        <!-- Replace profile.jpg with your actual image file -->
+<img src="images/samplepic.png" alt="Christina Ruiz" class="profile-pic" />
+
         <h1>Christina Ruiz</h1>
-        <p>I am an IT Support professional with 8+ years of experience supporting end users, resolving complex hardware/software issues, and keeping teams productive in fast-paced environments.
-<br><br>
-My background includes supporting users and managing technology systems for the New York City Department of Education and Fordham University School of Law, where I resolved complex issues in academic environments and maintained high service standards.
-<br><br>
-I am currently part of the December 2025 cohort of the AI Native Program with Pursuit (completing June 2026). I plan to sit for my CompTIA A+ certification by April 2026. I also hold an Associates Degree in Computer Information Systems from NYC College of Technology and a Google IT Support Certificate.
-<br><br>
-My hospitality experience strengthened my communication, empathy, and problem-solving—qualities I bring to every support interaction. I am passionate about making technology accessible and am seeking an AI-focused role where I can grow long-term and contribute to a forward-thinking organization.</p>
+
+        <p>
+            I am an IT Support professional with 8+ years of experience supporting end users,
+            resolving complex hardware/software issues, and keeping teams productive in fast-paced environments.
+            <br><br>
+            My background includes supporting users and managing technology systems for the New York City
+            Department of Education and Fordham University School of Law, where I resolved complex issues in
+            academic environments and maintained high service standards.
+            <br><br>
+            I am currently part of the December 2025 cohort of the AI Native Program with Pursuit
+            (completing June 2026). I plan to sit for my CompTIA A+ certification by April 2026.
+            I also hold an Associates Degree in Computer Information Systems from NYC College of Technology
+            and a Google IT Support Certificate.
+            <br><br>
+            My hospitality experience strengthened my communication, empathy, and problem-solving—qualities
+            I bring to every support interaction. I am passionate about making technology accessible and
+            am seeking an AI-focused role where I can grow long-term and contribute to a forward-thinking organization.
+        </p>
 
         <div class="links" role="navigation" aria-label="primary links">
-            <!-- Replace the href below with your LinkedIn profile URL -->
-            <a href="https://www.linkedin.com/in/ruizchristina/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+            <a href="https://www.linkedin.com/in/ruizchristina/" target="_blank" rel="noopener noreferrer">
+                LinkedIn
+            </a>
 
-            <!-- Add resume.pdf to the repo root or update the path; opens in a new tab -->
-            <a href="resume.pdf" target="_blank" rel="noopener noreferrer" class="secondary">Resume (PDF)</a>
+            <a href="resume.pdf" target="_blank" rel="noopener noreferrer" class="secondary">
+                Resume (PDF)
+            </a>
 
-            <!-- Projects opens the local projects page -->
             <a href="projects.html">Projects</a>
         </div>
 
         <footer>
             &copy; 2025 Christina Ruiz
         </footer>
+
     </main>
+
+
 </body>
 </html>
