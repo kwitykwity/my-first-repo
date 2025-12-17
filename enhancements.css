@@ -1,0 +1,41 @@
+/* Optional enhancements layer — safe to remove anytime */
+
+/* Back-to-top button injected by JS */
+.back-to-top {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 9999;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 46px;
+  height: 46px;
+
+  border-radius: 999px;
+  border: 1px solid rgba(17, 24, 39, 0.12);
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 12px 28px rgba(17, 24, 39, 0.18);
+
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.back-to-top:hover {
+  transform: translateY(-1px);
+}
+
+.back-to-top:focus-visible {
+  outline: 3px solid #1d4ed8;
+  outline-offset: 2px;
+}
+
+/* Subtle active state for nav link (scrollspy) */
+nav a.is-active {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  font-weight: 800;
+}
