@@ -5,8 +5,11 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Projects</title>
   <style>
-    body{font-family:system-ui, -apple-system, "Segoe UI", Roboto, Arial;margin:0;padding:2rem;background:#f7f7fb url("images/neonfairy.png") no-repeat center top;background-size:cover;color:#111}
-    .wrap{max-width:900px;margin:0 auto}
+    body{font-family:system-ui, -apple-system, "Segoe UI", Roboto, Arial;margin:0;padding:2rem;background:#f7f7fb url("images/neonfairy.png") no-repeat center -120px;background-size:cover;color:#111}
+    .wrap{max-width:900px;margin:0 auto; position:relative; padding-bottom:4.5rem}
+    .links { display:flex; gap:.5rem; flex-wrap:wrap; position:absolute; bottom:1rem; left:50%; transform:translateX(-50%); }
+    .links a { padding:.5rem .8rem; border-radius:6px; text-decoration:none; background:#0b5fff; color:white; font-weight:600; }
+    .links a.secondary { background:#eef2ff; color:#0b5fff; border:1px solid #dbeafe; font-weight:600; }
     header{display:flex;align-items:center;justify-content:space-between}
     h1{margin:0}
     .list{margin-top:1rem;display:grid;gap:1rem}
@@ -40,6 +43,11 @@
         <p>Small productivity app to help maintain focus.</p>
       </article>
     </section>
+    <div class="links" role="navigation" aria-label="primary links">
+      <a href="https://www.linkedin.com/in/ruizchristina/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      <a href="resume.pdf" target="_blank" rel="noopener noreferrer" class="secondary">Resume (PDF)</a>
+      <a href="index.html">Home</a>
+    </div>
   </div>
 </body>
 </html>
