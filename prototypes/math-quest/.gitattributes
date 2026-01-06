@@ -1,0 +1,5 @@
+# Set default behavior for all text files
+* text=auto
+
+# Git LFS placeholders (if needed)
+# *.mp4 filter=lfs diff=lfs merge=lfs -text
